@@ -2,61 +2,31 @@ import requests
 import json
 
 def get_usdtry():
-    try:
-        url = "https://api.exchangerate.host/latest?base=USD&symbols=TRY"
-        r = requests.get(url, timeout=10)
-        data = r.json()
+    url = "https://open.er-api.com/v6/latest/USD"
+    r = requests.get(url, timeout=10)
+    data = r.json()
+    return float(data["rates"]["TRY"])
 
-        if "rates" in data and "TRY" in data["rates"]:
-            return float(data["rates"]["TRY"])
-        else:
-            print("USDTRY API cevap beklenmedik:", data)
-            return 30.0  # fallback
-    except Exception as e:
-        print("USDTRY hata:", e)
-        return 30.0  # fallback
-
-def get_coin(id):
-    try:
-        url = f"https://api.coingecko.com/api/v3/simple/price?ids={id}&vs_currencies=usd"
-        r = requests.get(url, timeout=10)
-        data = r.json()
-        return float(data[id]["usd"])
-    except Exception as e:
-        print(f"{id} hata:", e)
-        return 0.0
+def get_binance(symbol):
+    url = f"https://api.binance.com/api/v3/ticker/price?symbol={symbol}"
+    r = requests.get(url, timeout=10)
+    data = r.json()
+    return float(data["price"])
 
 def main():
     usdtry = get_usdtry()
 
-    btc = get_coin("bitcoin")
-    eth = get_coin("ethereum")
+    btc_usd = get_binance("BTCUSDT")
+    eth_usd = get_binance("ETHUSDT")
 
-    # Altın & Gümüş (ons USD)
-    gold_ons = get_coin("gold")
-    silver_ons = get_coin("silver")
-
-    gold_gram = (gold_ons * usdtry) / 31.1035
-    silver_gram = (silver_ons * usdtry) / 31.1035
+    btc_try = btc_usd * usdtry
+    eth_try = eth_usd * usdtry
 
     data = {
+        "usdtry": round(usdtry, 4),
         "coin": [
-            {"name": "BTC", "price": round(btc, 2)},
-            {"name": "ETH", "price": round(eth, 2)},
-            {"name": "USDT", "price": "Üzerinde çalışılıyor"},
-            {"name": "XRP", "price": "Üzerinde çalışılıyor"}
-        ],
-        "bist": [
-            {"name": "THYAO", "price": "Üzerinde çalışılıyor"},
-            {"name": "KTLEV", "price": "Üzerinde çalışılıyor"}
-        ],
-        "us": [
-            {"name": "NVDA", "price": "Üzerinde çalışılıyor"},
-            {"name": "TSLA", "price": "Üzerinde çalışılıyor"}
-        ],
-        "metal": [
-            {"name": "Altın (gr)", "price": round(gold_gram, 2)},
-            {"name": "Gümüş (gr)", "price": round(silver_gram, 2)}
+            {"name": "BTC", "price": round(btc_try, 0)},
+            {"name": "ETH", "price": round(eth_try, 0)}
         ]
     }
 
