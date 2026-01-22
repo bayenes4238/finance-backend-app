@@ -1,6 +1,14 @@
 {
-  "coin": [],
-  "bist": [],
-  "us": [],
-  "metal": []
+    "usdtry": 43.3062,
+    "coin": [
+        {
+            "name": "BTC",
+            "price": 3865238.0
+        },
+        {
+            "name": "ETH",
+            "price": 127790.0
+        }
+    ],
+    "status": "ok"
 }
