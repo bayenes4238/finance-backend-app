@@ -1,45 +1,41 @@
-import yahooFinance from "yahoo-finance2";
-import fs from "fs-extra";
+import yfinance as yf
+import json
+import time
 
-const BIST = {
-  THYAO: "THYAO.IS",
-  ASELS: "ASELS.IS",
-  KCHOL: "KCHOL.IS"
-};
-
-const US = {
-  AAPL: "AAPL",
-  MSFT: "MSFT",
-  TSLA: "TSLA",
-  NVDA: "NVDA"
-};
-
-async function fetchGroup(map) {
-  const out = {};
-  for (const key in map) {
-    try {
-      const q = await yahooFinance.quote(map[key]);
-      out[key] = {
-        p: Number(q.regularMarketPrice.toFixed(2)),
-        c: Number(q.regularMarketChangePercent.toFixed(2))
-      };
-    } catch {
-      out[key] = { p: 0, c: 0 };
-    }
-  }
-  return out;
+BIST = {
+    "THYAO": "THYAO.IS",
+    "ASELS": "ASELS.IS",
+    "KCHOL": "KCHOL.IS"
 }
 
-async function main() {
-  const data = {
-    stocks: {
-      bist: await fetchGroup(BIST),
-      us: await fetchGroup(US)
+US = {
+    "AAPL": "AAPL",
+    "MSFT": "MSFT",
+    "TSLA": "TSLA"
+}
+
+def fetch_group(group):
+    out = {}
+    for key, symbol in group.items():
+        try:
+            t = yf.Ticker(symbol)
+            p = t.fast_info["lastPrice"]
+            c = t.fast_info["lastPrice"] / t.fast_info["previousClose"] * 100 - 100
+            out[key] = {
+                "p": round(p, 2),
+                "c": round(c, 2)
+            }
+        except:
+            out[key] = {"p": 0, "c": 0}
+    return out
+
+data = {
+    "stocks": {
+        "bist": fetch_group(BIST),
+        "us": fetch_group(US)
     },
-    ts: Math.floor(Date.now() / 1000)
-  };
-
-  await fs.writeJson("data.json", data);
+    "ts": int(time.time())
 }
 
-main();
+with open("data.json", "w") as f:
+    json.dump(data, f)
