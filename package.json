@@ -1,0 +1,8 @@
+{
+  "name": "market-data",
+  "type": "module",
+  "dependencies": {
+    "yahoo-finance2": "^2.13.0",
+    "fs-extra": "^11.1.1"
+  }
+}
