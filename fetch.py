@@ -1,37 +1,45 @@
-import requests
-import json
+import yahooFinance from "yahoo-finance2";
+import fs from "fs-extra";
 
-def get_usdtry():
-    url = "https://open.er-api.com/v6/latest/USD"
-    r = requests.get(url, timeout=10)
-    data = r.json()
-    return float(data["rates"]["TRY"])
+const BIST = {
+  THYAO: "THYAO.IS",
+  ASELS: "ASELS.IS",
+  KCHOL: "KCHOL.IS"
+};
 
-def get_crypto(symbol):
-    url = f"https://min-api.cryptocompare.com/data/price?fsym={symbol}&tsyms=USD"
-    r = requests.get(url, timeout=10)
-    data = r.json()
-    return float(data["USD"])
+const US = {
+  AAPL: "AAPL",
+  MSFT: "MSFT",
+  TSLA: "TSLA",
+  NVDA: "NVDA"
+};
 
-def main():
-    usdtry = get_usdtry()
-
-    btc_usd = get_crypto("BTC")
-    eth_usd = get_crypto("ETH")
-
-    data = {
-        "usdtry": round(usdtry, 4),
-        "coin": [
-            {"name": "BTC", "price": round(btc_usd * usdtry, 0)},
-            {"name": "ETH", "price": round(eth_usd * usdtry, 0)}
-        ],
-        "status": "ok"
+async function fetchGroup(map) {
+  const out = {};
+  for (const key in map) {
+    try {
+      const q = await yahooFinance.quote(map[key]);
+      out[key] = {
+        p: Number(q.regularMarketPrice.toFixed(2)),
+        c: Number(q.regularMarketChangePercent.toFixed(2))
+      };
+    } catch {
+      out[key] = { p: 0, c: 0 };
     }
+  }
+  return out;
+}
 
-    with open("data.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+async function main() {
+  const data = {
+    stocks: {
+      bist: await fetchGroup(BIST),
+      us: await fetchGroup(US)
+    },
+    ts: Math.floor(Date.now() / 1000)
+  };
 
-    print("data.json başarıyla güncellendi")
+  await fs.writeJson("data.json", data);
+}
 
-if __name__ == "__main__":
-    main()
+main();
