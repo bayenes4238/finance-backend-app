@@ -1,14 +1,21 @@
 {
-    "usdtry": 43.3062,
-    "coin": [
-        {
-            "name": "BTC",
-            "price": 3865238.0
-        },
-        {
-            "name": "ETH",
-            "price": 127790.0
-        }
+  "usdtry": 43.3062,
+
+  "coin": [
+    { "name": "BTC", "price": 3865238.0 },
+    { "name": "ETH", "price": 127790.0 }
+  ],
+
+  "stocks": {
+    "bist": [
+      { "name": "THYAO", "price": 298.5, "change": 1.42 },
+      { "name": "ASELS", "price": 54.1, "change": -0.8 }
     ],
-    "status": "ok"
+    "us": [
+      { "name": "AAPL", "price": 189.2, "change": 0.6 },
+      { "name": "TSLA", "price": 242.7, "change": -1.1 }
+    ]
+  },
+
+  "status": "ok"
 }
