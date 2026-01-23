@@ -6,26 +6,33 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  update:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install deps
-        run: pip install yfinance
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install yfinance
 
       - name: Run fetch
         run: python fetch.py
 
-      - name: Commit
+      - name: Show diff
+        run: git diff
+
+      - name: Commit and push
         run: |
-          git config user.name "bot"
-          git config user.email "bot@github.com"
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
           git add data.json
-          git commit -m "update data" || exit 0
+          git commit -m "update data $(date +%s)" || echo "No changes"
           git push
