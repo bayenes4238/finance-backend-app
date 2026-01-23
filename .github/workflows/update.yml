@@ -1,37 +1,23 @@
-name: Update Data
+name: update-data
 
 on:
   schedule:
-    - cron: "*/5 * * * *"   # 5 dakikada bir
+    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 jobs:
-  update:
+  run:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Repo'yu çek
-        uses: actions/checkout@v3
-
-      - name: Python kur
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          python-version: "3.10"
-
-      - name: Gerekli paketleri kur
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests
-
-      - name: Scripti çalıştır
-        run: |
-          python fetch.py
-
-      - name: Değişiklikleri pushla
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
+          node-version: 20
+      - run: npm install
+      - run: node fetch.js
+      - run: |
+          git config user.name "bot"
+          git config user.email "bot@github.com"
           git add data.json
-          git commit -m "Update data.json" || echo "No changes"
+          git commit -m "update data" || exit 0
           git push
-
